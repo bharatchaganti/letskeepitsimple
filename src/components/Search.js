@@ -18,21 +18,29 @@ class Search extends React.Component{
               loading: false, //To show the data is loading
               message: "", //Store any error message
               final_loading: false,
+              currentPage : 1,
+              postsPerPage : 10
           };
           this.cancel = "";
+
+ 
       }
 
-fetchSearchResults = (query) => 
+
+   fetchSearchResults = (query) => 
   {
-    const url = `https://serpapi.com/search.json?engine=google&q=${query}&api_key=4cf5a118b49b252e2078c2ffd799a905c598ecd74fc8c09252f72b68d20b1349`;
+    console.log("In Functions");
+    const url = "https://jsonplaceholder.typicode.com/todos";
+    console.log("After API");
     Axios.get(url).then( 
       (response) => {
-          this.setState({results : response.data.organic_results});
+          console.log(response.data);
+          this.setState({results : response.data});
           this.setState({loading:true});
           this.setState({final_loading : true})
-          if(Object.keys(this.state.results).length==0){
-              throw "Error Found"
-          }
+          console.log(query);
+          console.log("Printing results");
+          console.log(this.state.results);
       }
     )
     .catch(function(error){
@@ -45,12 +53,15 @@ fetchSearchResults = (query) =>
      this.setState({value: event.target.value});
      this.setState({loading:false});
      this.setState({final_loading : false});
+     console.log(this.indexOfLastPage);
   };
 
   handleClick = () => {
       const query=this.state.value;
       this.setState({ query: query, loading: true, message: "" }, () => {
       this.fetchSearchResults(query); //TO call the function
+      console.log(this.indexOfLastPage);
+      console.log(query);
       }); //loading:true and message empty: So When typed it moves away
   };
 
@@ -61,47 +72,22 @@ fetchSearchResults = (query) =>
             <h1> "Let's keep it simple" </h1>
         </div>
         <div className="cryptoHeader">
-          <input
+        <input
             type="text"
             placeholder="Search here..."
             onChange= {this.handleChange}
           />
-         
           <button type="button" class="btn btn-secondary" onClick = {this.handleClick}>
               Search
           </button>
         </div>
         <div className = "cryptoDisplay">
-        {
-          //We extract the individual data from the array
-                
-                  this.state.results && this.state.results.length ?
-                  this.state.results.map((result) => {
-                    //return <h1>{coin.name}</h1>; //Returning coin name ..You can check in the inspect element.
-                    //We can also pass to the component and return it from there
-                    return (
-                      <Coin
-                        //passing props
-                        title={result.title}
-                        link={result.link}
-                        description={result.snippet}
-                      />
-                    ); //To use we need to import - See above
-                  })  : this.state.loading ? this.state.value!=""? this.state.final_loading? <h3> No data found </h3> : null : null : null
-        }
-        {
-           this.state.loading? this.state.value =="" ? <h3> Enter some data</h3> : null : null
-        }
-        
-      
+              <Coin Posts={this.state.results} loading={this.state.loading} final_loading={this.state.final_loading} value={this.state.value}/>
         </div>
-        
       </div>
     );
 
 
   }
-  
 }
-
 export default Search;
